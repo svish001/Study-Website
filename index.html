@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUNY Study Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Add these new styles to your existing CSS */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .video-background video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+        :root {
+            --primary-color: #1a3c6e;
+            --secondary-color: #e4572e;
+            --accent-color: #17a2b8;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        #search-bar:focus {
+            outline: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Main Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .dashboard-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Pomodoro Timer */
+        .pomodoro {
+            text-align: center;
+        }
+
+        .timer {
+            font-size: 3em;
+            margin: 20px 0;
+            color: var(--primary-color);
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Todo List */
+        .todo-app {
+            background: white;
+        }
+
+        .todo-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .todo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #inputBox {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--light-gray);
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-color);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .gadget {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gadget:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Quick Links Panel */
+        .quick-links {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .quick-links h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .link-item {
+            padding: 10px;
+            background: var(--light-gray);
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+
+        .link-item:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .weather-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        /* Study Statistics */
+        .study-stats {
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--light-gray);
+            border-radius: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            color: var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .taskbar {
+                padding: 5px;
+                gap: 10px;
+            }
+
+            .gadget {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--light-gray);
+            margin-bottom: 8px;
+            border-radius: 5px;
+            justify-content: space-between;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .delete-btn:hover {
+            color: #c82333;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Pomodoro specific styles */
+        .pomodoro.break {
+            background-color: #4CAF50;
+        }
+
+        .pomodoro.session {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Previous HTML remains the same -->
+
+    <script>
+        // Task Management
+        class TaskManager {
+            constructor() {
+                this.taskInput = document.getElementById('inputBox');
+                this.taskList = document.getElementById('listContainer');
+                this.clearCompletedBtn = document.getElementById('clear-completed');
+                this.tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                
+                this.initializeEventListeners();
+                this.renderTasks();
+            }
+
+            initializeEventListeners() {
+                this.taskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addTask();
+                });
+
+                document.querySelector('.todo-input button').addEventListener('click', () => this.addTask());
+
+                this.clearCompletedBtn.addEventListener('click', () => this.clearCompleted());
+            }
+
+            addTask() {
+                const text = this.taskInput.value.trim();
+                if (!text) {
+                    this.showNotification('Please enter a task!', 'error');
+                    return;
+                }
+
+                const task = {
+                    id: Date.now(),
+                    text,
+                    completed: false,
+                    createdAt: new Date()
+                };
+
+                this.tasks.push(task);
+                this.saveTasks();
+                this.renderTasks();
+                this.taskInput.value = '';
+                this.showNotification('Task added successfully!');
+                this.updateStats();
+            }
+
+            renderTasks() {
+                this.taskList.innerHTML = '';
+                this.tasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                    li.innerHTML = `
+                        <div class="task-content">
+                            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                            <span class="task-text">${this.escapeHtml(task.text)}</span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+
+                    const checkbox = li.querySelector('.task-checkbox');
+                    checkbox.addEventListener('change', () => this.toggleTask(task.id));
+
+                    const deleteBtn = li.querySelector('.delete-btn');
+                    deleteBtn.addEventListener('click', () => this.deleteTask(task.id));
+
+                    this.taskList.appendChild(li);
+                });
+                this.updateStats();
+            }
+
+            toggleTask(id) {
+                this.tasks = this.tasks.map(task => 
+                    task.id === id ? {...task, completed: !task.completed} : task
+                );
+                this.saveTasks();
+                this.renderTasks();
+            }
+
+            deleteTask(id) {
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                this.saveTasks();
+                this.renderTasks();
+                this.showNotification('Task deleted');
+            }
+
+            clearCompleted() {
+                this.tasks = this.tasks.filter(task => !task.completed);
+                this.saveTasks();
+                this.renderTasks();
+                this.showNotification('Completed tasks cleared');
+            }
+
+            saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            }
+
+            updateStats() {
+                const completed = this.tasks.filter(t => t.completed).length;
+                document.querySelector('.stat-value').textContent = completed;
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 300);
+                    }, 3000);
+                }, 100);
+            }
+
+            escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        }
+
+        // Pomodoro Timer
+        class PomodoroTimer {
+            constructor() {
+                this.timeSession = 25;
+                this.timeBreak = 5;
+                this.time = this.timeSession * 60;
+                this.status = 'session';
+                this.isRunning = false;
+                this.timer = null;
+
+                this.timerDisplay = document.querySelector('.timer');
+                this.toggleBtn = document.getElementById('toggle');
+                this.resetBtn = document.getElementById('reset');
+                this.switchBtn = document.getElementById('switch');
+
+                this.initializeControls();
+                this.updateDisplay();
+            }
+
+            initializeControls() {
+                this.toggleBtn.addEventListener('click', () => this.toggleTimer());
+                this.resetBtn.addEventListener('click', () => this.resetTimer());
+                this.switchBtn.addEventListener('click', () => this.switchMode());
+            }
+
+            updateDisplay() {
+                const minutes = Math.floor(this.time / 60);
+                const seconds = this.time % 60;
+                this.timerDisplay.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            toggleTimer() {
+                this.isRunning = !this.isRunning;
+                this.toggleBtn.innerHTML = this.isRunning ? 
+                    '<i class="fas fa-pause"></i>' : 
+                    '<i class="fas fa-play"></i>';
+
+                if (this.isRunning) {
+                    this.startTimer();
+                } else {
+                    clearInterval(this.timer);
+                }
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    if (this.time > 0) {
+                        this.time--;
+                        this.updateDisplay();
+                    } else {
+                        this.switchMode();
+                    }
+                }, 1000);
+            }
+
+            resetTimer() {
+                clearInterval(this.timer);
+                this.isRunning = false;
+                this.time = this.status === 'session' ? 
+                    this.timeSession * 60 : 
+                    this.timeBreak * 60;
+                this.toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                this.updateDisplay();
+            }
+
+            switchMode() {
+                this.status = this.status === 'session' ? 'break' : 'session';
+                this.time = this.status === 'session' ? 
+                    this.timeSession * 60 : 
+                    this.timeBreak * 60;
+                document.querySelector('.pomodoro').classList.toggle('break');
+                this.resetTimer();
+            }
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskManager = new TaskManager();
+            const pomodoroTimer = new PomodoroTimer();
+        });
+
+        class TaskbarManager {
+            constructor() {
+                this.initializeTaskbar();
+            }
+
+            initializeTaskbar() {
+                // Clock gadget
+                document.querySelector('.gadget[title="Clock"]').addEventListener('click', () => {
+                    window.location.href = 'clock.html';
+                });
+
+                // Calendar gadget
+                document.querySelector('.gadget[title="Calendar"]').addEventListener('click', () => {
+                    window.location.href = 'calendar.html';
+                });
+
+                // Fitness gadget
+                document.querySelector('.gadget[title="Fitness"]').addEventListener('click', () => {
+                    window.location.href = 'fitness.html';
+                });
+
+                // Music gadget
+                document.querySelector('.gadget[title="Music"]').addEventListener('click', () => {
+                    window.location.href = 'music.html';
+                });
+
+                // Weather gadget
+                document.querySelector('.gadget[title="Weather"]').addEventListener('click', () => {
+                    window.location.href = 'weather.html';
+                });
+
+                // Tasks gadget
+                document.querySelector('.gadget[title="Tasks"]').addEventListener('click', () => {
+                    window.location.href = 'tasks.html';
+                });
+            }
+        }
+
+        // Initialize TaskbarManager
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskbarManager = new TaskbarManager();
+        });
+    </script>
+</head>
+<body>
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="song/video2.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+    <div class="container">
+        <header class="header">
+            <h1>SUNY Study Dashboard</h1>
+            <div class="search-container">
+                <input type="text" id="search-bar" placeholder="Search SUNY resources, campus info, or ask a question...">
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Pomodoro Timer -->
+            <div class="dashboard-item pomodoro">
+                <h2>Study Timer</h2>
+                <div class="timer">25:00</div>
+                <div class="timer-controls">
+                    <button class="button" id="toggle"><i class="fas fa-play"></i></button>
+                    <button class="button" id="reset"><i class="fas fa-redo"></i></button>
+                    <button class="button" id="switch"><i class="fas fa-exchange-alt"></i></button>
+                </div>
+            </div>
+
+            <!-- Todo List -->
+            <div class="dashboard-item todo-app">
+                <div class="todo-header">
+                    <h2>Tasks</h2>
+                    <button class="button" id="clear-completed">Clear Completed</button>
+                </div>
+                <div class="todo-input">
+                    <input type="text" id="inputBox" placeholder="Add a new task...">
+                    <button class="button" onclick="addTask()">Add</button>
+                </div>
+                <ul class="todo-list" id="listContainer"></ul>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="dashboard-item quick-links">
+                <h2>Quick Links</h2>
+                <div class="links-grid">
+                    <a href="https://www.plattsburgh.edu/portal/" class="link-item">Student Portal</a>
+                    <a href="https://library.plattsburgh.edu/home" class="link-item">Library</a>
+                    <a href="https://catalog.plattsburgh.edu/index.php?catoid=16" class="link-item">Course Catalog</a>
+                    <a href="https://www.plattsburgh.edu/about/offices-divisions/registrar/academic-calendar.html" class="link-item">Academic Calendar</a>
+                    <a href="https://www.plattsburgh.edu/about/directions/index.html" class="link-item">Campus Map</a>
+                    <a href="https://www.plattsburgh.edu/about/offices-divisions/administration-finance/policies-procedures/campus-handbook/section-x-library-information-technology/campus-email-policy.html" class="link-item">Campus Email Policy</a>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="dashboard-item weather-widget">
+                <h2>Campus Weather</h2>
+                <div class="weather-info">
+                    <i class="fas fa-sun fa-3x"></i>
+                    <div>
+                        <h3>Plattsburgh, NY</h3>
+                        <p class="temperature">72°F</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Statistics -->
+            <div class="dashboard-item study-stats">
+                <h2>Study Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <p>Study Sessions</p>
+                        <div class="stat-value">12</div>
+                    </div>
+                    <div class="stat-item">
+                        <p>Tasks Completed</p>
+                        <div class="stat-value">24</div>
+                    </div>
+                    <div class="stat-item">
+                        <p>Study Time</p>
+                        <div class="stat-value">5h</div>
+                    </div>
+                    <div class="stat-item">
+                        <p>Focus Score</p>
+                        <div class="stat-value">85%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="gadget" title="Clock"><i class="fas fa-clock"></i></div>
+        <div class="gadget" title="Calendar"><i class="fas fa-calendar"></i></div>
+        <div class="gadget" title="Fitness"><i class="fas fa-dumbbell"></i></div>
+        <div class="gadget" title="Music"><i class="fas fa-headphones"></i></div>
+        <div class="gadget" title="Weather"><i class="fas fa-cloud-sun"></i></div>
+        <div class="gadget" title="Tasks"><i class="fas fa-tasks"></i></div>
+    </div>
+</body>
+</html>
