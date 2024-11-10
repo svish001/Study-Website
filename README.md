@@ -146,10 +146,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - Font Awesome for icons
 - Contributors and testers
 
-## 📫 Contact
-Your Name - your.email@example.com
-Project Link: [https://github.com/yourusername/suny-study-dashboard](https://github.com/yourusername/suny-study-dashboard)
-
 ## 🚧 Future Improvements
 - [ ] Dark mode toggle
 - [ ] User authentication
