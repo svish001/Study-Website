@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Task Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a3c6e;
+            --secondary-color: #e4572e;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-gray: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            padding: 20px;
+        }
+
+        .task-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .task-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .task-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .task-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-secondary { background-color: var(--secondary-color); }
+        .btn-success { background-color: var(--success-color); }
+        .btn-warning { background-color: var(--warning-color); }
+        .btn-danger { background-color: var(--danger-color); }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: var(--light-gray);
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--light-gray);
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .task-badges {
+            display: flex;
+            gap: 5px;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            color: white;
+        }
+
+        .priority-high { background-color: var(--danger-color); }
+        .priority-medium { background-color: var(--warning-color); }
+        .priority-low { background-color: var(--success-color); }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .task-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .task-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="task-container">
+        <div class="task-header">
+            <h1>Study Task Manager</h1>
+            <p>Organize your academic tasks efficiently</p>
+        </div>
+
+        <form class="task-form" onsubmit="return false;">
+            <div class="input-group">
+                <input type="text" id="taskInput" class="task-input" placeholder="Add a new task...">
+            </div>
+            <select id="taskPriority" class="task-input">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+            </select>
+            <select id="taskCategory" class="task-input">
+                <option value="homework">Homework</option>
+                <option value="study">Study</option>
+                <option value="exam">Exam Prep</option>
+                <option value="project">Project</option>
+            </select>
+            <button class="btn btn-primary" onclick="taskManager.addTask()">
+                <i class="fas fa-plus"></i> Add Task
+            </button>
+        </form>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="taskManager.filterTasks('all')">All</button>
+            <button class="filter-btn" onclick="taskManager.filterTasks('active')">Active</button>
+            <button class="filter-btn" onclick="taskManager.filterTasks('completed')">Completed</button>
+            <button class="filter-btn" onclick="taskManager.sortByPriority()">
+                <i class="fas fa-sort-amount-down"></i> Priority
+            </button>
+            <button class="filter-btn" onclick="taskManager.sortByDueDate()">
+                <i class="fas fa-calendar"></i> Due Date
+            </button>
+        </div>
+
+        <ul id="taskList" class="task-list">
+            <!-- Tasks will be inserted here -->
+        </ul>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Tasks</h3>
+                <div class="stat-value" id="totalTasks">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Completed</h3>
+                <div class="stat-value" id="completedTasks">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Completion Rate</h3>
+                <div class="stat-value" id="completionRate">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Task</h2>
+            <input type="text" id="editTaskInput" class="task-input">
+            <select id="editTaskPriority" class="task-input">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+            </select>
+            <select id="editTaskCategory" class="task-input">
+                <option value="homework">Homework</option>
+                <option value="study">Study</option>
+                <option value="exam">Exam Prep</option>
+                <option value="project">Project</option>
+            </select>
+            <input type="date" id="editTaskDueDate" class="task-input">
+            <button class="btn btn-primary" onclick="taskManager.saveEdit()">Save</button>
+            <button class="btn btn-secondary" onclick="taskManager.closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        class TaskManager {
+            constructor() {
+                this.tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                this.currentFilter = 'all';
+                this.editingTaskId = null;
+                
+                this.initializeElements();
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            initializeElements() {
+                this.taskInput = document.getElementById('taskInput');
+                this.taskList = document.getElementById('taskList');
+                this.editModal = document.getElementById('editModal');
+            }
+
+            addTask() {
+                const text = this.taskInput.value.trim();
+                const priority = document.getElementById('taskPriority').value;
+                const category = document.getElementById('taskCategory').value;
+
+                if (!text) {
+                    this.showNotification('Please enter a task!', 'error');
+                    return;
+                }
+
+                const task = {
+                    id: Date.now(),
+                    text,
+                    completed: false,
+                    priority,
+                    category,
+                    createdAt: new Date(),
+                    dueDate: null
+                };
+
+                this.tasks.push(task);
+                this.saveTasks();
+                this.renderTasks();
+                this.taskInput.value = '';
+                this.showNotification('Task added successfully!');
+            }
+
+            renderTasks() {
+                this.taskList.innerHTML = '';
+                let filteredTasks = this.filterTasks(this.currentFilter);
+
+                filteredTasks.forEach(task => {
+                    const li = this.createTaskElement(task);
+                    this.taskList.appendChild(li);
+                });
+
+                this.updateStats();
+            }
+
+            createTaskElement(task) {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="task-content">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        <span class="task-text">${this.escapeHtml(task.text)}</span>
+                        <div class="task-badges">
+                            <span class="badge priority-${task.priority}">${task.priority}</span>
+                            <span class="badge">${task.category}</span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="action-btn btn-warning" onclick="taskManager.editTask(${task.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn btn-danger" onclick="taskManager.deleteTask(${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                const checkbox = li.querySelector('.task-checkbox');
+                checkbox.addEventListener('change', () => this.toggleTask(task.id));
+
+                return li;
+            }
+
+            toggleTask(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.saveTasks();
+                    this.renderTasks();
+                }
+            }
+
+            editTask(id) {
+                this.editingTaskId = id;
+                const task = this.tasks.find(t => t.id === id);
+                
+                document.getElementById('editTaskInput').value = task.text;
+                document.getElementById('editTaskPriority').value = task.priority;
+                document.getElementById('editTaskCategory').value = task.category;
+                document.getElementById('editTaskDueDate').value = task.dueDate || '';
+                
+                this.editModal.style.display = 'flex';
+            }
+
+            saveEdit() {
+                const task = this.tasks.find(t => t.id === this.editingTaskId);
+                if (task) {
+                    task.text = document.getElementById('editTaskInput').value;
+                    task.priority = document.getElementById('editTaskPriority').value;
+                    task.category = document.getElementById('editTaskCategory').value;
+                    task.dueDate = document.getElementById('editTaskDueDate').value;
+                    
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.closeModal();
+                }
+            }
+
+            closeModal() {
+                this.editModal.style.display = 'none';
+                this.editingTaskId = null;
+            }
+
+            deleteTask(id) {
+                if (confirm('Are you sure you want to delete this task?')) {
+                    this.tasks = this.tasks.filter(t => t.id !== id);
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.showNotification('Task deleted');
+                }
+            }
+            filterTasks(filter) {
+                this.currentFilter = filter;
+                switch (filter) {
+                    case 'active':
+                        return this.tasks.filter(t => !t.completed);
+                    case 'completed':
+                        return this.tasks.filter(t => t.completed);
+                    default:
+                        return this.tasks;
+                }
+            }
+
+            sortByPriority() {
+                const priorityOrder = { high: 1, medium: 2, low: 3 };
+                this.tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+                this.renderTasks();
+            }
+
+            sortByDueDate() {
+                this.tasks.sort((a, b) => {
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    return new Date(a.dueDate) - new Date(b.dueDate);
+                });
+                this.renderTasks();
+            }
+
+            updateStats() {
+                const totalTasks = this.tasks.length;
+                const completedTasks = this.tasks.filter(t => t.completed).length;
+                const completionRate = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+                document.getElementById('totalTasks').textContent = totalTasks;
+                document.getElementById('completedTasks').textContent = completedTasks;
+                document.getElementById('completionRate').textContent = `${completionRate}%`;
+            }
+
+            saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 300);
+                    }, 3000);
+                }, 100);
+            }
+
+            escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Additional functionality for task categories
+            getTasksByCategory() {
+                const categories = {};
+                this.tasks.forEach(task => {
+                    if (!categories[task.category]) {
+                        categories[task.category] = [];
+                    }
+                    categories[task.category].push(task);
+                });
+                return categories;
+            }
+
+            // Task search functionality
+            searchTasks(query) {
+                if (!query) {
+                    this.renderTasks();
+                    return;
+                }
+
+                const searchResults = this.tasks.filter(task => 
+                    task.text.toLowerCase().includes(query.toLowerCase()) ||
+                    task.category.toLowerCase().includes(query.toLowerCase())
+                );
+                this.renderFilteredTasks(searchResults);
+            }
+
+            renderFilteredTasks(filteredTasks) {
+                this.taskList.innerHTML = '';
+                filteredTasks.forEach(task => {
+                    const li = this.createTaskElement(task);
+                    this.taskList.appendChild(li);
+                });
+            }
+
+            // Bulk actions
+            deleteCompletedTasks() {
+                if (confirm('Are you sure you want to delete all completed tasks?')) {
+                    this.tasks = this.tasks.filter(task => !task.completed);
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.showNotification('Completed tasks deleted');
+                }
+            }
+
+            markAllCompleted() {
+                this.tasks = this.tasks.map(task => ({
+                    ...task,
+                    completed: true
+                }));
+                this.saveTasks();
+                this.renderTasks();
+                this.showNotification('All tasks marked as completed');
+            }
+
+            // Due date management
+            getOverdueTasks() {
+                const today = new Date();
+                return this.tasks.filter(task => {
+                    if (!task.dueDate || task.completed) return false;
+                    return new Date(task.dueDate) < today;
+                });
+            }
+
+            // Task priority management
+            updateTaskPriority(taskId, newPriority) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.priority = newPriority;
+                    this.saveTasks();
+                    this.renderTasks();
+                }
+            }
+
+            // Export tasks
+            exportTasks() {
+                const dataStr = JSON.stringify(this.tasks, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const exportLink = document.createElement('a');
+                exportLink.setAttribute('href', dataUri);
+                exportLink.setAttribute('download', 'tasks.json');
+                document.body.appendChild(exportLink);
+                exportLink.click();
+                document.body.removeChild(exportLink);
+            }
+
+            // Import tasks
+            importTasks(jsonData) {
+                try {
+                    const importedTasks = JSON.parse(jsonData);
+                    this.tasks = [...this.tasks, ...importedTasks];
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.showNotification('Tasks imported successfully');
+                } catch (error) {
+                    this.showNotification('Error importing tasks', 'error');
+                }
+            }
+
+            // Task analytics
+            getTaskAnalytics() {
+                const analytics = {
+                    totalTasks: this.tasks.length,
+                    completedTasks: this.tasks.filter(t => t.completed).length,
+                    overdueTasks: this.getOverdueTasks().length,
+                    categoryCounts: {},
+                    priorityCounts: {
+                        high: 0,
+                        medium: 0,
+                        low: 0
+                    }
+                };
+
+                this.tasks.forEach(task => {
+                    // Count by category
+                    analytics.categoryCounts[task.category] = 
+                        (analytics.categoryCounts[task.category] || 0) + 1;
+                    
+                    // Count by priority
+                    analytics.priorityCounts[task.priority]++;
+                });
+
+                return analytics;
+            }
+        }
+
+        // Initialize TaskManager
+        const taskManager = new TaskManager();
+
+        // Add search functionality
+        document.getElementById('taskInput').addEventListener('input', (e) => {
+            taskManager.searchTasks(e.target.value);
+        });
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                taskManager.closeModal();
+            }
+        };
+
+    </script>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Weather</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a3c6e;
+            --secondary-color: #e4572e;
+            --light-gray: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .weather-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .weather-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        .temperature {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin: 1rem 0;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .detail-item {
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: 0.5rem;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="weather-container">
+        <h2>Plattsburgh Campus Weather</h2>
+        <div class="weather-icon">
+            <i class="fas fa-sun"></i>
+        </div>
+        <div class="temperature">72°F</div>
+        <div class="weather-description">Sunny</div>
+        <div class="weather-details">
+            <div class="detail-item">
+                <i class="fas fa-water"></i>
+                <div>Humidity</div>
+                <div>45%</div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-wind"></i>
+                <div>Wind</div>
+                <div>5 mph</div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-temperature-high"></i>
+                <div>High</div>
+                <div>75°F</div>
+            </div>
+            <div class="detail-item
